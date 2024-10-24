@@ -1,5 +1,23 @@
-# Take-a-break
+# Project Name
 
-Take-a-break is a [brief description of what your project does]. It helps users [key functionality or benefit].  
-Contributions are welcome, especially during Hacktoberfest!  
-Check out the [contributing guide](CONTRIBUTING.md) to get started.
+## Description
+
+Decide how long of a break you want, visit your favorite website, and relax until your time's up.
+
+## Features
+
+- Custom break time
+- Add and save custom websites for later use
+- Mobile-friendly
+- No ads or trackers
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Codeweavers1610/Take-a-Break.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd Take-a-Break
+   ```
