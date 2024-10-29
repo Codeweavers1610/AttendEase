@@ -25,6 +25,8 @@
 
 .icon-arrow-right:before {
     content: '\0042';
+    font-size: 1.35rem;
+    margin-left: 0.75rem;
 }
 
 .icon-help:before {
