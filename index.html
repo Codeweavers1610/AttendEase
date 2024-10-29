@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
@@ -6,71 +7,56 @@
     <link rel="icon" type="image/x-icon" href="assets/icon.svg">
     <link rel="stylesheet" href="styles/IconFont.css">
     <link rel="stylesheet" type="text/css" href="styles/bootstrap.css">
-   
     <script src="scripts/jquery.min.js"></script>
     <script src="scripts/sweetalert.min.js"></script>
-    <!-- Primary Meta Tags -->
     <title> - Self-Destructing Tabs</title>
     <meta name="title" content="Take a Break - Self-Destructing Tabs">
-    <meta name="description"
-        content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
-    <!-- Open Graph / Facebook -->
+    <meta name="description" content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://github.com/Codeweavers1610/Take-a-Break">
     <meta property="og:title" content="Take a Break - Self-Destructing Tabs">
-    <meta property="og:description"
-        content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
+    <meta property="og:description" content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
     <meta property="og:image" content="assets/banner.png">
-
-    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://github.com/Codeweavers1610/Take-a-Break">
     <meta property="twitter:title" content="Take a Break - Self-Destructing Tabs">
-    <meta property="twitter:description"
-        content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
+    <meta property="twitter:description" content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
     <meta property="twitter:image" content="assets/banner.png">
-
 </head>
 
 <body class="main">
-    <!-- A dropdown menu for controlling notifications and audio alerts -->
     <div class="top">
-        
-    <!-- about the website -->
-    <a id="aboutcorner" style="cursor: pointer;margin-left: 1.5rem;">
-        <img src="assets/about.svg" width="35rem" height="35rem">
-    </a>
-
-        <a  class="dropbtn" onmouseover="inside2()" onmouseleave="outside2()"  onclick="btnClick()">
+        <a id="aboutcorner" style="cursor: pointer;margin-left: 1.5rem;">
+            <img src="assets/about.svg" width="35rem" height="35rem">
+        </a>
+        <a class="dropbtn" onmouseover="inside2()" onmouseleave="outside2()" onclick="btnClick()">
             <img src="assets/settings.svg" width="35rem" height="35rem">
         </a><br>
-        <div class="list" id="list2" onmouseover="inside2()" onmouseleave="outside2() ">
+        <div class="list" id="list2" onmouseover="inside2()" onmouseleave="outside2()">
             <p id="show"></p>
             <label class="switch" id="switch1">
                 <input type="checkbox" id="notification">
                 <span onclick="Notif_Click()">Notifications</span>
             </label>
             <br>
-            <label class="switch" id="switch2" >
+            <label class="switch" id="switch2">
                 <input type="checkbox" id="audioAlert">
                 <span onclick="Audio_Click()">Audio Alerts</span>
             </label>
-          
         </div>
-        
     </div>
-    <!-- @2 computerised voice alert audio added which will not be visible on home screen----------------------------------------------- -->
+    
     <div>
         <audio id="audio1" src="assets/male50.mp3" controls style="display: none;"></audio>
         <audio id="audio2" src="assets/male90.mp3" controls style="display: none;"></audio>
     </div>
 
-    <!-- Added logo of the website -->
     <div class="logo-parent">
         <div class="logo-child">
             <img src="assets/logo.svg" alt="icon" id="logo-img">
         </div>
     </div>
+    
     <h1 id="header">Take a Break</h1>
     <div class="circular-container">
         <div class="container">
@@ -81,21 +67,20 @@
             </div>
         </div>
     </div>
-    <h2 id="subHeader" href="">Select a time to start your break</h2>
+    
+    <h2 id="subHeader">Select a time to start your break</h2>
     <div class="extra-btn">
         <button class="pause-btn">Pause</button>
         <button class="stop-btn">Stop</button>
     </div>
+    
     <div id="time" style="display: none"></div>
     <div class="buttons" id="buttons">
         <ul>
-
-            <li><a class="time-button" id="btn_front" onclick="choice(this,5)">5 min</a></li>
-            <li><a class="time-button" id="btn_midL" onclick="choice(this,10)">10 min</a></li>
-            <li><a class="time-button" id="btn_midR" onclick="choice(this,15)">15 min</a></li>
+            <li><a class="time-button" id="btn_front" onclick="choice(this, 5)">5 min</a></li>
+            <li><a class="time-button" id="btn_midL" onclick="choice(this, 10)">10 min</a ></li>
+            <li><a class="time-button" id="btn_midR" onclick="choice(this, 15)">15 min</a></li>
             <li><a class="time-button" id="btn_end" onclick="Custom(this)">Custom</a></li>
-
-
         </ul>
     </div>
 
@@ -122,10 +107,8 @@
         </ul>
     </div>
 
-
     <footer>
-
-        <div id="author" class="footer-part">Copyright © Codeweavers</div>
+        <div id="author" class="footer-part">Copyright Codeweavers</div>
         <div id="social_icons">
             <li>
                 <a href="https://github.com/Codeweavers1610/" target="_blank" title="Website">
@@ -146,17 +129,47 @@
     <script type="text/javascript" src="scripts/jquery.fancybox.pack.js?v=2.1.5"></script>
     <script type="text/javascript" src="scripts/bootstrap.min.js"></script>
 
-    <script src="scripts/main.js" type="text/javascript"></script>
     <script>
+        // Define the choice function here
+        function choice(element, minutes) {
+            // Your logic here
+            console.log("Choice function called with " + minutes + " minutes");
+        }
+
+        function Custom(element) {
+            // Your logic here
+            console.log("Custom function called");
+        }
+
+        function Notif_Click() {
+            // Your logic here
+            console.log("Notification clicked");
+        }
+
+        function Audio_Click() {
+            // Your logic here
+            console.log("Audio clicked");
+        }
+
+        function inside2() {
+            // Your logic here
+            console.log("Inside 2");
+        }
+
+        function outside2() {
+            // Your logic here
+            console.log("Outside 2");
+        }
+
+        function btnClick() {
+            // Your logic here
+            console.log("Button clicked");
+        }
+
         window.onbeforeunload = function () {
             closeChildren();
-
         };
     </script>
-
-    </div>
-
 </body>
 
 </html>
-
