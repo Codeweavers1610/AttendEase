@@ -2,7 +2,6 @@
 
 <head>
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="color-scheme" content="dark">
     <link rel="stylesheet" type="text/css" href="styles/main.css">
     <link rel="icon" type="image/x-icon" href="assets/icon.svg">
     <link rel="stylesheet" href="styles/IconFont.css">
@@ -11,7 +10,7 @@
     <script src="scripts/jquery.min.js"></script>
     <script src="scripts/sweetalert.min.js"></script>
     <!-- Primary Meta Tags -->
-    <title>Take a Break - Self-Destructing Tabs</title>
+    <title> - Self-Destructing Tabs</title>
     <meta name="title" content="Take a Break - Self-Destructing Tabs">
     <meta name="description"
         content="Tackle procrastination by using self-destructing tabs and boost your productivity.">
@@ -102,15 +101,15 @@
 
     <div class="content" style="display: none">
         <div class="custom-url">
-            <h3 id="content-label">Enter website directly</h3>
+            <h3 id="content-label">Enter website URL</h3>
             <div class="enterUrlDiv">
                 <input id="enterUrl" pattern="https?://.+"
-                    class="form-control ui-autocomplete-input" placeholder="Go to..." name="keywords" type="url"
+                    class="form-control ui-autocomplete-input" placeholder="https://abc.com" name="keywords" type="url"
                     autocomplete="off" style="background: #353535;">
                 <a id="urlClick" class="iconfont icon-arrow-right"></a>
             </div>
         </div>
-        <h3 id="content-label">Or, add websites/use pre-added websites</h3>
+        <h3 id="content-label">Or choose from out favourites</h3>
         <div class="website_grid">
             <ul class="rig columns-6 websites" id="grid">
             </ul>
