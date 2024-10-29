@@ -1,391 +1,420 @@
-// Unsplash and Quotes API
-const unsplashApiKey = "c_XkgSCIgq34agYtWGjpx-33g5-UuBLT5awrCmguk2g";
-const quoteApiUrl = "https://type.fit/api/quotes";
+// Random quote generator function
+let quote = "";
+const apiUrl = "https://type.fit/api/quotes";
+const apiKey = "c_XkgSCIgq34agYtWGjpx-33g5-UuBLT5awrCmguk2g";
 
-async function fetchMotivationalQuote() {
-  try {
-    // Fetch motivational quote
-    let response = await fetch(quoteApiUrl);
-    let quotes = await response.json();
-    let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
-    // Fetch motivational image
-    response = await fetch(`https://api.unsplash.com/search/photos?query=motivational&client_id=${unsplashApiKey}`);
-    let data = await response.json();
-    let randomImage = data.results[Math.floor(Math.random() * data.results.length)];
-
-    // Display quote and image
-    return `
-      <div class="moti_title">Here's a quote to keep you motivated:</div>
-      <div class="moti_quote">
-        <p>${randomQuote.text} - <em>${randomQuote.author || "Unknown"}</em></p>
-        <img src="${randomImage.urls.small}" alt="Motivational Image" />
-      </div>
-    `;
-  } catch (error) {
-    console.error("Error fetching motivational content:", error);
-    return "<p>Could not fetch motivational content. Please try again later.</p>";
-  }
+// Fetch a random quote and a motivational image
+async function getJson() {
+    const randomQuoteIndex = Math.floor(Math.random() * 10);
+    const imageResponse = await fetch(`https://api.unsplash.com/search/photos?query=motivational&client_id=${apiKey}`);
+    const imageData = await imageResponse.json();
+    const image = imageData.results[randomQuoteIndex];
+    
+    quote = `<div>
+                <div class='moti_title'>Here's a quote to keep you motivated:</div>
+                <span class='moti_quote'>
+                    <img src="${image.urls.small}" alt="">
+                </span>
+            </div>`;
 }
 
-// Custom Site Addition
-async function saAddSite() {
-  const { value: formValues } = await Swal.fire({
-    title: "Add Custom Site",
-    html: `
-      <input id="inputSiteName" class="swal2-input" placeholder="Name" required>
-      <input type="url" id="inputSiteLink" class="swal2-input" placeholder="Link" required>
-    `,
-    background: "#353535",
-    color: "white",
-    focusConfirm: false,
-    preConfirm: () => {
-      const name = document.getElementById("inputSiteName").value.trim();
-      const link = document.getElementById("inputSiteLink").value.trim();
-
-      if (!name) {
-        Swal.showValidationMessage("Please enter the site name.");
-        return;
-      }
-      if (!isValidUrl(link)) {
-        Swal.showValidationMessage("Invalid URL format.");
-        return;
-      }
-      return [name, link];
-    }
-  });
-
-  if (formValues) {
-    const [siteName, siteLink] = formValues;
-    Lockr.sadd("customSites", [siteName, siteLink]);
-    addGridElement(siteName, siteLink);
-  }
+async function DailyQuotes() {
+    await getJson();
 }
 
-// Helper Function to Validate URL
-function isValidUrl(url) {
-  const urlPattern = /^(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}(\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/;
-  return urlPattern.test(url);
-}
+DailyQuotes();
 
-// Initialize and display quotes
-(async function init() {
-  const content = await fetchMotivationalQuote();
-  document.getElementById("motivationalContent").innerHTML = content;
-})();
-$(document).ready(function () {
-  let isVisible, count = 0, run = 0, flag1 = 0, flag2 = 0, windowCount = 0, complete = false;
-  let windows = [];
-
-  function showAlert(title, message, icon = "info") {
-    Swal.fire({
-      title,
-      html: `<p style='font-family:Product Sans; letter-spacing:1px;'>${message}</p>`,
-      background: "#353535",
-      icon,
-      color: "white",
-    });
-  }
-
-  function isUrlValid() {
-    const url = $('#url-input').val();
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-  }
-
-  $("body").keyup((e) => {
-    if (e.key === "Enter" && $('.content').hasClass('visible')) {
-      if (isUrlValid()) {
-        if (count === 0) {
-          customUrl1();
-          count = 1;
+// Lockr utility for localStorage management
+(function (root, factory) {
+    if (typeof exports !== 'undefined') {
+        if (typeof module !== 'undefined' && module.exports) {
+            exports = module.exports = factory(root, exports);
         }
-      } else {
-        showAlert("Invalid URL", "Please enter a valid website URL!", "error");
-      }
-    }
-  });
-
-  $('.time-button').click(function () {
-    $(".time-button").removeClass("clicked");
-    $(this).addClass("clicked");
-  });
-
-  if (screen.width <= 480) {
-    $('#background, #notification, #logo').hide();
-  }
-
-  if (Lockr.get('pastUser') === undefined) {
-    Lockr.set('pastUser', 'yes');
-    showAlert("Welcome!", "Select a break time, go to your favorite website, and when time's up, your tab will self-destruct!");
-  }
-
-  function toggleDisplay(id, flag) {
-    document.getElementById(id).style.display = flag ? "block" : "none";
-  }
-
-  $("#notification").click(() => Lockr.set('notificationAlert', flag1 === 1));
-  $("#audioAlert").click(() => Lockr.set('audioAlert', flag2 === 1));
-
-  function Custom(e) {
-    $('.content').removeClass('visible');
-    Swal.fire({
-      title: "Custom Time",
-      html: "<p style='font-family:Product Sans; letter-spacing:1px;'>How long do you want a break?</p>",
-      input: 'text',
-      confirmButtonText: "Let's go!",
-      background: "#353535",
-      color: "white",
-      preConfirm: (inputValue) => {
-        if (!inputValue) {
-          showAlert("Error", "You need to write something!", "error");
-          return false;
-        }
-
-        let convertIntoMinVal = parseTimeInput(inputValue);
-        if (convertIntoMinVal > 0) {
-          choice(e, convertIntoMinVal);
-          $("#btn_end").text(`${convertIntoMinVal.toFixed(2)} min`);
-          $(".content").fadeIn().addClass('visible');
-          return true;
-        } else {
-          showAlert("Error", "Please enter a valid number!", "error");
-          return false;
-        }
-      }
-    });
-  }
-
-  function parseTimeInput(input) {
-    let minutes = 0, hrsFlag = input.includes("h"), minFlag = input.includes("m"), secFlag = input.includes("s");
-
-    if (hrsFlag && minFlag) {
-      minutes = parseInt(input.split("h")[0]) * 60 + parseInt(input.split("h")[1]);
-    } else if (hrsFlag) {
-      minutes = parseInt(input) * 60;
-    } else if (secFlag) {
-      minutes = parseInt(input) / 60;
+    } else if (typeof define === 'function' && define.amd) {
+        define(['exports'], function (exports) {
+            root.Lockr = factory(root, exports);
+        });
     } else {
-      minutes = parseInt(input);
+        root.Lockr = factory(root, {});
     }
-    return isNaN(minutes) || minutes <= 0 ? -1 : minutes;
-  }
+}(this, function (root, Lockr) {
+    'use strict';
 
-  function choice(e, minutes) {
-    $(".time-button").css({ backgroundColor: "rgb(140, 179, 238)", color: "#000" });
-    $(e).css({ backgroundColor: "rgb(89, 151, 245)", color: "black" });
-    run = 1;
-    Swal.close();
+    Lockr.prefix = "";
 
-    const offset = $(".custom-url").offset().top + 80;
-    $(window).animate({ scrollTop: offset }, 500);
-  }
+    Lockr._getPrefixedKey = function (key, options = {}) {
+        return options.noPrefix ? key : this.prefix + key;
+    };
 
-  function OpenInNew(min, tab, type) {
-    if (type !== "video") {
-      const win = window.open('loading.html', '_blank');
-      setTimeout(() => { win.location = tab; }, 6500);
-      windows[windowCount++] = win;
-    }
+    Lockr.set = function (key, value, options) {
+        const queryKey = this._getPrefixedKey(key, options);
+        try {
+            localStorage.setItem(queryKey, JSON.stringify({ "data": value }));
+        } catch (e) {
+            console.warn(`Lockr didn't successfully save the '${key}: ${value}' pair, because localStorage is full.`);
+        }
+    };
 
-    if (count === 0) {
-      startBreakTimer(min);
-      count = 1;
-    }
+    Lockr.get = function (key, missing, options) {
+        const queryKey = this._getPrefixedKey(key, options);
+        let value;
 
-    const intervalID = setInterval(() => manageWindowArray(intervalID), 1000);
-  }
+        try {
+            value = JSON.parse(localStorage.getItem(queryKey));
+        } catch (e) {
+            value = localStorage[queryKey] ? { data: localStorage.getItem(queryKey) } : null;
+        }
 
-  function startBreakTimer(min) {
-    const duration = min * 60;
-    const halfTime = duration / 2;
-    const ninetyPercentTime = duration * 0.9;
+        return value === null ? missing : (value.data !== undefined ? value.data : missing);
+    };
 
-    let timeDisplay = $("#time");
-    setTimeout(() => playAlertAudio("audio1"), halfTime);
-    setTimeout(() => playAlertAudio("audio2"), ninetyPercentTime);
+    Lockr.sadd = function (key, value, options) {
+        const queryKey = this._getPrefixedKey(key, options);
+        const values = Lockr.smembers(key);
 
-    startTimer(duration, timeDisplay);
-  }
+        if (values.indexOf(value) > -1) return null;
 
-  function playAlertAudio(audioId) {
-    if (flag2 === 1) {
-      document.getElementById(audioId).play();
-    }
-  }
+        try {
+            values.push(value);
+            localStorage.setItem(queryKey, JSON.stringify({ "data": values }));
+        } catch (e) {
+            console.warn(`Lockr didn't successfully add the ${value} to ${key} set, because localStorage is full.`);
+        }
+    };
 
-  function manageWindowArray(intervalID) {
-    windows = windows.filter(win => !win.closed);
-    windowCount = windows.length;
+    Lockr.smembers = function (key, options) {
+        const queryKey = this._getPrefixedKey(key, options);
+        let value;
 
-    if (windowCount === 0 && !complete) {
-      clearInterval(intervalID);
-      onCloseEarly();
-    }
-  }
+        try {
+            value = JSON.parse(localStorage.getItem(queryKey));
+        } catch (e) {
+            value = null;
+        }
 
-  function onCloseEarly() {
-    Swal.fire({
-      title: "You closed out early!",
-      showCancelButton: true,
-      confirmButtonText: "Keep Browsing!",
-      cancelButtonText: "I'm done!",
-    }).then(result => {
-      if (!result.isConfirmed) window.location = "./index.html";
+        return value === null ? [] : (value.data || []);
+    };
+
+    Lockr.srem = function (key, value, options) {
+        const queryKey = this._getPrefixedKey(key, options);
+        const values = Lockr.smembers(key, value);
+        const index = values.indexOf(value);
+
+        if (index > -1) values.splice(index, 1);
+
+        try {
+            localStorage.setItem(queryKey, JSON.stringify({ "data": values }));
+        } catch (e) {
+            console.warn(`Lockr couldn't remove the ${value} from the set ${key}`);
+        }
+    };
+
+    Lockr.keys = function () {
+        return Object.keys(localStorage).filter(key => key.startsWith(Lockr.prefix)).map(key => key.replace(Lockr.prefix, ''));
+    };
+
+    Lockr.getAll = function () {
+        return Lockr.keys().map(key => Lockr.get(key));
+    };
+
+    Lockr.flush = function () {
+        if (Lockr.prefix.length) {
+            Lockr.keys().forEach(key => localStorage.remove (Lockr.prefix + key));
+        } else {
+            localStorage.clear();
+        }
+    };
+
+    return Lockr;
+}));
+
+// Function to add a custom site
+const saAddSite = async () => {
+    const { value: formValues } = await Swal.fire({
+        title: "Add custom Site",
+        html: `
+            <div style="font-family:Product Sans; letter-spacing:1px; margin:0;">
+                <input id="inputSiteName" class="swal2-input" placeholder="Name" autofocus>
+                <p style="display: none; margin-top: 4px; margin-left: 3px;" id="erro"></p>
+                <br/>
+                <input type="url" id="inputSiteLink" class="swal2-input" placeholder="Link">
+                <p style="display: none; margin-top: 4px; margin-left: 3px;" id="error"></p>
+            </div>`,
+        background: "#353535",
+        color: "white",
+        focusConfirm: false,
+        preConfirm: () => {
+            const siteName = document.getElementById("inputSiteName").value;
+            const siteLink = document.getElementById("inputSiteLink").value;
+
+            if (!siteLink.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)) {
+                Swal.showValidationMessage('<i class="fa fa-info-circle"></i> Invalid URL');
+            }
+            if (!siteName) {
+                Swal.showValidationMessage('<i class="fa fa-info-circle"></i> Please Enter the Site Name');
+            }
+            return [siteName, siteLink];
+        },
     });
-  }
-});
 
-
-const TIMER_EXTENSION = 6;
-let timer, setInt;
-let increase = 0;
-let count = 0;
-let first = true;
-let complete = false;
-let num = 360;
-const display = document.querySelector("#display");
-const container = document.querySelector(".container");
-const secEle = document.querySelector("#seconds");
-const minEle = document.querySelector("#minutes");
-const extraBtn = document.querySelector("#extraBtn");
-const pauseBtn = document.querySelector("#pauseBtn");
-
-// Function to start the timer
-function startTimer(duration) {
-  extraBtn.classList.add("active");
-  let start = Date.now();
-
-  timer = () => {
-    let diff = duration + TIMER_EXTENSION - increase++; // Calculate remaining time
-    let minutes = Math.floor(diff / 60);
-    let seconds = diff % 60;
-
-    minutes = minutes < 10 ? +minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-
-    updateDisplay(minutes, seconds, diff);
-    updateBackground(diff, duration);
-
-    if (diff <= 0) {
-      complete = true;
-      clearInterval(setInt);
-      return;
+    if (formValues) {
+        addSite(formValues);
     }
-  };
+};
 
-  setInt = setInterval(timer, 1000);
-}
+const addSite = (formValues) => {
+    const [site, siteLink] = formValues;
 
-function updateDisplay(minutes, seconds, diff) {
-  // Update the display and document title
-  if (diff === 60) {
-    display.textContent = "1 minute";
-    document.title = "1 minute";
-  } else if (diff < 60) {
-    display.textContent = `${seconds} seconds`;
-    document.title = `${seconds} seconds`;
-  } else {
-    display.textContent = `${minutes}:${seconds} minutes`;
-    document.title = `${minutes}:${seconds} minutes`;
-  }
+    if (!site.trim() || !siteLink.trim()) {
+        displayErrorMessages(site, siteLink);
+        return;
+    }
 
-  secEle.textContent = seconds;
-  minEle.textContent = minutes;
+    if (!siteLink.startsWith("http")) {
+        siteLink = "http://" + siteLink;
+    }
 
-  if (diff === duration * 0.5) showNotification("50% of your break is over");
-  if (diff === duration * 0.1) showNotification("90% of your break is over");
-}
+    if (isValidUrl(siteLink)) {
+        Lockr.sadd("customSites", [site, siteLink]);
+        addGridElement(site, siteLink);
+        clearInputFields();
+        $("#mm1").modal("toggle");
+    } else {
+        displayErrorMessages(site, siteLink);
+    }
+};
 
-function updateBackground(diff, duration) {
-  container.style.setProperty("--a", num + "deg");
-  container.style.background = `conic-gradient(#8cb3ee var(--a), #8cb3ee 0deg, #585862d5 0deg, #585862d5 360deg)`;
-  num -= num / diff;
-}
+const displayErrorMessages = (site, siteLink) => {
+    if (!site) {
+        document.getElementById("erro").innerHTML = "<p style='color:#FF0000;'>ERROR: No label provided</p>";
+        document.getElementById("erro").style.display = "block";
+    }
+    if (!isValidUrl(siteLink)) {
+        document.getElementById("error").innerHTML = "<p style='color:#FF0000;'>ERROR: Incorrect website URL</p>";
+        document.getElementById("error").style.display = "block";
+    }
+};
 
-function showNotification(message) {
-  if (!("Notification" in window)) return;
-  const notification = new Notification("Take a Break!", {
-    body: message,
-    icon: "assets/banner.png",
-  });
-  setTimeout(() => notification.close(), 10000);
-}
+const isValidUrl = (url) => {
+    return url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+};
 
-// Pause/Resume Button Handler
-pauseBtn.addEventListener("click", (e) => {
-  if (e.target.textContent === "Pause") {
-    e.target.textContent = "Resume";
-    clearInterval(setInt);
-  } else {
-    e.target.textContent = "Pause";
-    setInt = setInterval(timer, 1000);
-  }
+const clearInputFields = () => {
+    document.getElementById("inputSiteLink").value = "";
+    document.getElementById("inputSiteName").value = "";
+    document.getElementById("error").innerHTML = "";
+    document.getElementById("erro").innerHTML = "";
+};
+
+// Document ready function
+$(document).ready(function () {
+    $('.total-container').fadeIn();
+    initializeSettings();
+    updateSites();
+    setupEventListeners();
 });
 
-// Open a custom URL in a new tab
-function openCustomUrl() {
-  if (count === 0) {
-    let customSite = formatUrl(document.getElementById("enterUrl").value);
-    openInNewTab(customSite);
-    count = 1;
-  }
-}
+// Initialize settings based on Lockr data
+const initializeSettings = () => {
+    document.getElementById("notification").checked = Lockr.get('notificationAlert') || false;
+    document.getElementById("audioAlert").checked = Lockr.get('audioAlert') || false;
+};
 
-function formatUrl(url) {
-  return url.startsWith("http") ? url : "http://" + url;
-}
+// Setup event listeners for buttons and other elements
+const setupEventListeners = () => {
+    $("#modalClose").click(clearInputFields);
+    
+    $("#addSiteButton").click((event) => {
+        event.preventDefault();
+        saAddSite();
+    });
 
-function openInNewTab(url) {
-  window.open(url, "_blank");
-}
+    $('.content').on('click', '.delete', handleDelete);
+    $('.content').on('click', 'a.siteLink', handleSiteLinkClick);
+    $('#video-gallery').click (handleVideoGalleryClick);
+    $('#urlClick').click(handleUrlClick);
+    $('.time-button').click(handleTimeButtonClick);
+    $("#notification").click(handleNotificationClick);
+    $("#audioAlert").click(handleAudioAlertClick);
+};
 
-// Update site list with grid elements
-function updateSites() {
-  $(".rig.columns-6.websites").append(
-    "<a data-toggle='modal1' onclick='saAddSite()' data-target='#mm1' class='addCustom'><li class='outbound-link'><img id='Add Site' src='assets/plus.png' onclick='saAddSite()'><p>Add Site</p></li></a>"
-  );
+// Handle delete button click
+ const handleDelete = () => {
+    Swal.fire({
+        html: "<p style='font-family:Product Sans ; letter-spacing:1px;'>Are you sure to delete this website?</p>",
+        background: "#353535",
+        color: "white",
+        confirmButtonText: "Delete",
+        showCancelButton: true,
+        animation: "slide-from-top",
+        filter: 'blur(10px)',
+        allowOutsideClick: false,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const tabLink = $(this).attr('data-name');
+            const tab = $(this).attr('data-tab');
+            $(this).remove();
+            deleteTab(tab, tabLink);
+        }
+    });
+};
 
-  sites.forEach(([siteName, siteLabel]) => {
-    let imgSrc = getSiteImageSrc(siteName);
-    appendSiteElement(siteName, siteLabel, imgSrc);
-    Lockr.sadd("siteData", [siteName, siteLabel]);
-  });
+// Handle site link click
+const handleSiteLinkClick = () => {
+    const tab = $(this).attr('data-link');
+    OpenInNew(min, tab);
+};
 
-  const customSites = Lockr.get("customSites") || [];
-  customSites.forEach(([customLink, customLabel]) => {
-    addGridElement(customLink, customLabel);
-  });
-}
+// Handle video gallery click
+const handleVideoGalleryClick = () => {
+    if (count == 0) {
+        OpenInNew(min, tab, "video");
+        count = 1;
+    }
+};
 
-function getSiteImageSrc(siteName) {
-  const images = {
-    Youtube: "assets/youtube.png",
-    Netflix: "assets/netflix.png",
-    Facebook: "assets/facebook.png",
-    Instagram: "assets/instagram.png",
-    Reddit: "assets/reddit.png",
-  };
-  return images[siteName] || `https://logo.clearbit.com/${siteName.toLowerCase()}.com`;
-}
+// Handle URL click
+const handleUrlClick = () => {
+    if (isUrlValid()) {
+        if (count == 0) {
+            customUrl();
+            count = 1;
+        }
+    } else {
+        Swal.fire({
+            html: "<p style='font-family:Product Sans; letter-spacing:1px;'>Please enter a valid website URL!</p>",
+            background: "#353535",
+            color: "white",
+            icon: "error",
+        });
+    }
+};
 
-function appendSiteElement(siteName, siteLabel, imgSrc) {
-  $(".rig.columns-6.websites").append(`
-    <a class='siteLink' data-link='http://${siteName.toLowerCase()}.com' target='_blank'>
-      <li class='outbound-link'>
-        <img id='${siteName}' src='${imgSrc}'>
-        <p>${siteLabel}</p>
-      </li>
-    </a>
-  `);
-}
+// Handle time button click
+const handleTimeButtonClick = () => {
+    $(".time-button").each(function (i, hello) {
+        $(hello).removeClass("clicked");
+    });
+    $(this).addClass("clicked");
+};
 
-// About section alert
-document.getElementById("aboutcorner").addEventListener("click", () => {
-  Swal.fire({
-    html: "<p style='font-family:Product Sans; letter-spacing:1px;'>Welcome! Select a break time, go to your favorite website and when the time's up, your tab will self-destruct!</p>",
-    background: "#353535",
-    color: "white",
-    icon: "info",
-  });
-});
+// Handle notification click
+const handleNotificationClick = () => {
+    Lockr.set('notificationAlert', $(this).is(':checked'));
+};
+
+// Handle audio alert click
+const handleAudioAlertClick = () => {
+    Lockr.set('audioAlert', $(this).is(':checked'));
+};
+
+// Function to update sites
+const updateSites = () => {
+    $(".rig.columns-6.websites").append(
+        "<a data-toggle='modal1' onclick='saAddSite()' data-target='#mm1' class='addCustom'><li class='outbound-link'><img id='Add Site' src='assets/plus.png' onclick='saAddSite()'><p>Add Site</p></li></a>"
+    );
+
+    // Add default sites
+    const sites = [
+        ["Reddit", "Reddit"],
+        ["Facebook", "Facebook"],
+        ["Youtube", "YouTube"],
+        ["Instagram", "Instagram"],
+        ["Netflix", "Netflix"]
+    ];
+
+    sites.forEach(([siteName, siteLabel]) => {
+        const imgSrc = getSiteImage(siteName);
+
+        $.ajax({
+            type: 'HEAD',
+            url: imgSrc,
+            success: function () {
+                $('.rig.columns-6.websites').append(`
+                    <a class='siteLink' data-link='http://${siteName.toLowerCase()}.com' target='_blank'>
+                        <li class='outbound-link'>
+                            <img id='${siteName}' src='${imgSrc}'>
+                            <p>${siteLabel}</p>
+                        </li>
+                    </a>
+                `);
+            },
+            error: function () {
+                $('.rig.columns-6.websites').append(`
+                    <a class='siteLink' data-link='http://${siteName.toLowerCase()}.com' target='_blank'>
+                        <li class='outbound-link'>
+                            <img id='${siteName}' src='assets/web.png'>
+                            <p>${siteLabel}</p>
+                        </li>
+                    </a>
+                `);
+            }
+        });
+    });
+
+    // Add custom sites from Lockr
+    if (Lockr.get('customSites')) {
+        Lockr.get('customSites').forEach(([siteName, siteLink]) => {
+            addGridElement(siteName, siteLink);
+        });
+    }
+};
+
+// Function to get site image
+const getSiteImage = (siteName) => {
+    if (siteName === 'Youtube') return 'assets/youtube.png';
+    if (siteName === 'Netflix') return 'assets/netflix.png';
+    if (siteName === 'Facebook') return 'assets/facebook.png';
+    if (siteName === 'Instagram') return 'assets/instagram.png';
+    if (siteName === 'Reddit') return 'assets/reddit.png';
+    return `https://logo.clearbit.com/${siteName.toLowerCase()}.com`;
+};
+
+// Function to add grid element
+const addGridElement = (siteLabel, siteLink) => {
+    let newLabel = siteLabel.replace(/\s+/g, '');
+    let testLink = `https://logo.clearbit.com/${newLabel.toLowerCase()}.com`;
+    let newSiteLabel = siteLabel.substring(0 , 14);
+    newSiteLabel = newSiteLabel.replace(/\s/g, '&nbsp;');
+
+    $.ajax({
+        type: 'HEAD',
+        url: testLink,
+        success: function () {
+            $('.rig.columns-6.websites').append(`
+                <a class='siteLink' data-link='${siteLink}' target='_blank'>
+                    <li class='outbound-link'>
+                        <img id='${siteLabel}' src='https://logo.clearbit.com/${newLabel.toLowerCase()}.com'>
+                        <p>${newSiteLabel}</p>
+                    </li>
+                </a>
+            `);
+        },
+        error: function () {
+            $('.rig.columns-6.websites').append(`
+                <a class='siteLink' data-link='${siteLink}' target='_blank'>
+                    <li class='outbound-link'>
+                        <img id='${siteLabel}' src='assets/web.png'>
+                        <p>${newSiteLabel}</p>
+                    </li>
+                </a>
+            `);
+        }
+    });
+};
+
+// Function to delete tab
+const deleteTab = (tab, tabLink) => {
+    $("[data-link='" + tabLink + "']").hide();
+    Lockr.srem('customSites', [tab, tabLink]);
+    var items = JSON.parse(localStorage.getItem("customSites"));
+    for (var i = 0; i < items.data.length; i++) {
+        var name = items.data[i][0];
+        if (name == tab) {
+            items.data.splice(i, 1);
+            item = JSON.stringify(items);
+            localStorage.setItem("customSites", item);
+            return;
+        }
+    }
+};
