@@ -1,9 +1,10 @@
 # 🛑 Take a Break 🛑
 
+NOTE: We are not looking for contributions for now, please bookmark your ideas for the next hacktoberfest !! <br>
+This project is only active in hacktoberfests !!!! 
+
 ## 📜 Description
 Decide how long of a break you want, visit your favorite website, and relax until your time's up. **Take a Break** is a simple yet effective tool designed to encourage healthy breaks during your work or study sessions, enhancing your productivity while ensuring you recharge.
-
-NOTE: This project is only active in hacktoberfests !!!! 
 
 ## ✨ Features
 - **Custom Break Time**: Set your own break duration to suit your schedule.
