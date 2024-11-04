@@ -9,13 +9,14 @@ async function getJson() {
     const imageResponse = await fetch(`https://api.unsplash.com/search/photos?query=motivational&client_id=${apiKey}`);
     const imageData = await imageResponse.json();
     const image = imageData.results[randomQuoteIndex];
-    
-    quote = `<div>
-                <div class='moti_title'>Here's a quote to keep you motivated:</div>
-                <span class='moti_quote'>
-                    <img src="${image.urls.small}" alt="">
-                </span>
-            </div>`;
+
+    quote = `
+        <div>
+            <div class='moti_title'>Here's a quote to keep you motivated:</div>
+            <span class='moti_quote'>
+                <img src="${image.urls.small}" alt="">
+            </span>
+        </div>`;
 }
 
 async function DailyQuotes() {
@@ -97,7 +98,7 @@ DailyQuotes();
 
     Lockr.srem = function (key, value, options) {
         const queryKey = this._getPrefixedKey(key, options);
-        const values = Lockr.smembers(key, value);
+        const values = Lockr.smembers(key);
         const index = values.indexOf(value);
 
         if (index > -1) values.splice(index, 1);
@@ -119,7 +120,7 @@ DailyQuotes();
 
     Lockr.flush = function () {
         if (Lockr.prefix.length) {
-            Lockr.keys().forEach(key => localStorage.remove (Lockr.prefix + key));
+            Lockr.keys().forEach(key => localStorage.removeItem(Lockr.prefix + key));
         } else {
             localStorage.clear();
         }
@@ -131,7 +132,7 @@ DailyQuotes();
 // Function to add a custom site
 const saAddSite = async () => {
     const { value: formValues } = await Swal.fire({
-        title: "Add custom Site",
+        title: "Add Custom Site",
         html: `
             <div style="font-family:Product Sans; letter-spacing:1px; margin:0;">
                 <input id="inputSiteName" class="swal2-input" placeholder="Name" autofocus>
@@ -231,7 +232,7 @@ const setupEventListeners = () => {
 
     $('.content').on('click', '.delete', handleDelete);
     $('.content').on('click', 'a.siteLink', handleSiteLinkClick);
-    $('#video-gallery').click (handleVideoGalleryClick);
+    $('#video-gallery').click(handleVideoGalleryClick);
     $('#urlClick').click(handleUrlClick);
     $('.time-button').click(handleTimeButtonClick);
     $("#notification").click(handleNotificationClick);
@@ -239,20 +240,20 @@ const setupEventListeners = () => {
 };
 
 // Handle delete button click
- const handleDelete = () => {
+const handleDelete = function () {
+    const tabLink = $(this).attr('data-name');
+    const tab = $(this).attr('data-tab');
+    
     Swal.fire({
-        html: "<p style='font-family:Product Sans ; letter-spacing:1px;'>Are you sure to delete this website?</p>",
+        html: "<p style='font-family:Product Sans; letter-spacing:1px;'>Are you sure to delete this website?</p>",
         background: "#353535",
         color: "white",
         confirmButtonText: "Delete",
         showCancelButton: true,
         animation: "slide-from-top",
-        filter: 'blur(10px)',
         allowOutsideClick: false,
     }).then((result) => {
         if (result.isConfirmed) {
-            const tabLink = $(this).attr('data-name');
-            const tab = $(this).attr('data-tab');
             $(this).remove();
             deleteTab(tab, tabLink);
         }
@@ -260,13 +261,13 @@ const setupEventListeners = () => {
 };
 
 // Handle site link click
-const handleSiteLinkClick = () => {
+const handleSiteLinkClick = function () {
     const tab = $(this).attr('data-link');
     OpenInNew(min, tab);
 };
 
 // Handle video gallery click
-const handleVideoGalleryClick = () => {
+const handleVideoGalleryClick = function () {
     if (count == 0) {
         OpenInNew(min, tab, "video");
         count = 1;
@@ -274,7 +275,7 @@ const handleVideoGalleryClick = () => {
 };
 
 // Handle URL click
-const handleUrlClick = () => {
+const handleUrlClick = function () {
     if (isUrlValid()) {
         if (count == 0) {
             customUrl();
@@ -291,34 +292,36 @@ const handleUrlClick = () => {
 };
 
 // Handle time button click
-const handleTimeButtonClick = () => {
-    $(".time-button").each(function (i, hello) {
-        $(hello).removeClass("clicked");
-    });
+const handleTimeButtonClick = function () {
+    $(".time-button").removeClass("clicked");
     $(this).addClass("clicked");
 };
 
 // Handle notification click
-const handleNotificationClick = () => {
+const handleNotificationClick = function () {
     Lockr.set('notificationAlert', $(this).is(':checked'));
 };
 
 // Handle audio alert click
-const handleAudioAlertClick = () => {
+const handleAudioAlertClick = function () {
     Lockr.set('audioAlert', $(this).is(':checked'));
 };
 
 // Function to update sites
 const updateSites = () => {
-    $(".rig.columns-6.websites").append(
-        "<a data-toggle='modal1' onclick='saAddSite()' data-target='#mm1' class='addCustom'><li class='outbound-link'><img id='Add Site' src='assets/plus.png' onclick='saAddSite()'><p>Add Site</p></li></a>"
-    );
+    $(".rig.columns-6.websites").append(`
+        <a data-toggle='modal1' onclick='saAddSite()' data-target='#mm1' class='addCustom'>
+            <li class='outbound-link'>
+                <img id='Add Site' src='assets/plus.png' onclick='saAddSite()'>
+                <p>Add Site</p>
+            </li>
+        </a>`);
 
     // Add default sites
     const sites = [
         ["Reddit", "Reddit"],
         ["Facebook", "Facebook"],
-        ["Youtube", "YouTube"],
+        ["YouTube", "YouTube"],
         ["Instagram", "Instagram"],
         ["Netflix", "Netflix"]
     ];
@@ -336,8 +339,7 @@ const updateSites = () => {
                             <img id='${siteName}' src='${imgSrc}'>
                             <p>${siteLabel}</p>
                         </li>
-                    </a>
-                `);
+                    </a>`);
             },
             error: function () {
                 $('.rig.columns-6.websites').append(`
@@ -346,8 +348,7 @@ const updateSites = () => {
                             <img id='${siteName}' src='assets/web.png'>
                             <p>${siteLabel}</p>
                         </li>
-                    </a>
-                `);
+                    </a>`);
             }
         });
     });
@@ -362,33 +363,32 @@ const updateSites = () => {
 
 // Function to get site image
 const getSiteImage = (siteName) => {
-    if (siteName === 'Youtube') return 'assets/youtube.png';
-    if (siteName === 'Netflix') return 'assets/netflix.png';
-    if (siteName === 'Facebook') return 'assets/facebook.png';
-    if (siteName === 'Instagram') return 'assets/instagram.png';
-    if (siteName === 'Reddit') return 'assets/reddit.png';
-    return `https://logo.clearbit.com/${siteName.toLowerCase()}.com`;
+    switch (siteName) {
+        case 'YouTube': return 'assets/youtube.png';
+        case 'Netflix': return 'assets/netflix.png';
+        case 'Facebook': return 'assets/facebook.png';
+        case 'Instagram': return 'assets/instagram.png';
+        case 'Reddit': return 'assets/reddit.png';
+        default: return `https://logo.clearbit.com/${siteName.toLowerCase()}.com`;
+    }
 };
 
 // Function to add grid element
 const addGridElement = (siteLabel, siteLink) => {
-    let newLabel = siteLabel.replace(/\s+/g, '');
-    let testLink = `https://logo.clearbit.com/${newLabel.toLowerCase()}.com`;
-    let newSiteLabel = siteLabel.substring(0 , 14);
-    newSiteLabel = newSiteLabel.replace(/\s/g, '&nbsp;');
+    let newLabel = siteLabel.replace(/\s+/g, '').toLowerCase();
+    let newSiteLabel = siteLabel.substring(0, 14).replace(/\s/g, '&nbsp;');
 
     $.ajax({
         type: 'HEAD',
-        url: testLink,
+        url: `https://logo.clearbit.com/${newLabel}.com`,
         success: function () {
             $('.rig.columns-6.websites').append(`
                 <a class='siteLink' data-link='${siteLink}' target='_blank'>
                     <li class='outbound-link'>
-                        <img id='${siteLabel}' src='https://logo.clearbit.com/${newLabel.toLowerCase()}.com'>
+                        <img id='${siteLabel}' src='https://logo.clearbit.com/${newLabel}.com'>
                         <p>${newSiteLabel}</p>
                     </li>
-                </a>
-            `);
+                </a>`);
         },
         error: function () {
             $('.rig.columns-6.websites').append(`
@@ -397,8 +397,7 @@ const addGridElement = (siteLabel, siteLink) => {
                         <img id='${siteLabel}' src='assets/web.png'>
                         <p>${newSiteLabel}</p>
                     </li>
-                </a>
-            `);
+                </a>`);
         }
     });
 };
@@ -407,14 +406,11 @@ const addGridElement = (siteLabel, siteLink) => {
 const deleteTab = (tab, tabLink) => {
     $("[data-link='" + tabLink + "']").hide();
     Lockr.srem('customSites', [tab, tabLink]);
-    var items = JSON.parse(localStorage.getItem("customSites"));
-    for (var i = 0; i < items.data.length; i++) {
-        var name = items.data[i][0];
-        if (name == tab) {
-            items.data.splice(i, 1);
-            item = JSON.stringify(items);
-            localStorage.setItem("customSites", item);
-            return;
-        }
+
+    const items = Lockr.get('customSites');
+    const index = items.findIndex(item => item[0] === tab);
+    if (index > -1) {
+        items.splice(index, 1);
+        Lockr.set('customSites', items);
     }
 };
